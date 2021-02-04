@@ -130,7 +130,22 @@ def orbitalElements(mu, r, v):
         w [float] - Argument of Periapsis [deg]
         f [float] - True Anomaly [deg]
     """
+
+    # Catch bad inputs:
+
+    # no mass -> no orbiting!
+    if mu == 0:
+        print("[ERROR] Standard Gravitational Mass cannot be 0!")
+        return None, None, None, None, None, None
+
+    if r.mag() == 0:
+        print("[ERROR] r can not be a zero vector!")
+        return None, None, None, None, None, None
     
+    if 2/r.mag() <= v.mag()**2/mu:
+        print("[ERROR] Orbit is no longer elliptical")
+        return None, None, None, None, None, None
+        
     # angular momentum per unit mass
     h = r.cross(v)
 
@@ -246,6 +261,3 @@ if __name__ == "__main__":
     print("[f] = {:.4f}°".format(np.degrees(3.141592653589793)))
     print("[\u03C9] = {:.4f}°".format(np.degrees(5.684887965507214)))
     
-    print("==========================================================")
-
-
