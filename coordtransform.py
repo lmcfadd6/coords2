@@ -23,7 +23,9 @@ class Vector3D:
     """ Basic function defining 3D cartesian vectors in [x, y, z] form
 
         Example:
+            u = Vector3D(0, 1, 2)
             v = Vector3D(1, 1, 1)
+            u is a vector [0, 1, 2]
             v is a vector [1, 1, 1]
 
     """
@@ -35,12 +37,23 @@ class Vector3D:
         self.xyz = [x, y, z]
 
     def __add__(self, other):
+        """ Adds two vectors as expected
+        Example:
+            w = u + v
+            w is a vector [1, 2, 2]
+        
+        """
         result = Vector3D(self.x + other.x, \
                           self.y + other.y, \
                           self.z + other.z)
         return result
 
     def __sub__(self, other):
+        """ Subtracts two vectors as expected
+        Example:
+            w = u - v
+            w is a vector [-1, 0, 1]
+        """
         result = Vector3D(self.x - other.x, \
                           self.y - other.y, \
                           self.z - other.z)
@@ -48,6 +61,11 @@ class Vector3D:
 
 
     def __mul__(self, other):
+        """ Multipies a vector by a constant
+        Example:
+            w = u*3
+            w is a vector [0, 3, 6]
+        """
         result = Vector3D(self.x * other, \
                           self.y * other, \
                           self.z * other)
@@ -57,15 +75,27 @@ class Vector3D:
         return '[ {:.4f}, {:.4f}, {:.4f}]'.format(self.x, self.y, self.z)
 
     def mag(self):
+        """ Returns the geometric magnitude of the vector
+        """
         result = (self.x**2 + self.y**2 + self.z**2)**0.5
         return result
 
     def dot(self, other):
+        """ Returns the dot product of the vectors
+        Example:
+            w = u.dot(v)
+            w = 3
+        """ 
         result = self.x*other.x + self.y*other.y + self.z*other.z
 
         return result
 
     def cross(self, other):
+        """ Returns the cross product of the vectors
+        Example:
+            w = u.cross(v)
+            w is a vector [-1, 2, -1]
+        """
 
         x = self.y*other.z - self.z*other.y
         y = self.z*other.x - self.x*other.z
@@ -78,14 +108,34 @@ class Vector3D:
 # CODE START
 ################
 
+### Imports
 import numpy as np
 
+### define constants
 c = Constants()
 
 def orbitalElements(mu, r, v):
+    """ Transforms a rotating body state vectors into Keplarian Orbital parameters
+    All units are given in AU, yrs, Solar Masses, and degrees
+    Inputs:
+        mu [float] - Standard gravatational parameter in AU^3 yr^-2
+        r [Vector3D] - [x, y, z] state position vector of the orbiting body in AU
+        v [Vector3D] - [v_x, v_y, v_z] state velocity vector of the orbiting body in AU/yr
+
+    Outputs:
+        a [float] - Semimajor Axis of orbiting body [AU]
+        e [float] - Eccentricity of orbit
+        i [float] - Inclination of orbit [deg]
+        o [float] - Longitude of Accending node [deg]
+        w [float] - Argument of Periapsis [deg]
+        f [float] - True Anomaly [deg]
+    """
     
+    # angular momentum per unit mass
     h = r.cross(v)
 
+    # Calculate a, e, i
+    #######################
     a = 1/(2/r.mag() - v.mag()**2/mu)
     e = np.sqrt(1 - h.mag()**2/mu/a)
     i = np.arctan2(np.sqrt(h.x**2 + h.y**2), h.z)
@@ -93,7 +143,9 @@ def orbitalElements(mu, r, v):
     print("[a] = {:.4f} AU".format(a))
     print("[e] = {:.4f}".format(e))
     print("[i] = {:.4f}°".format(np.degrees(i)%360))
+    #######################
 
+    # Case 1: Inclination is 0
     if i == 0:
         # o doesn't make any sense, since it doesn't go above the plane
         o = None
@@ -102,6 +154,7 @@ def orbitalElements(mu, r, v):
         o = np.arctan2(h.x, -h.y)
         print("[\u03A9] = {:.2f}°".format(np.degrees(o)%360))
 
+    # Case 2: Eccentricity is 0
     if e == 0:
         # w doesn't make sense if there is no closest point
         print("[WARNING] e is exactly 0!")
@@ -114,6 +167,7 @@ def orbitalElements(mu, r, v):
         f = np.arctan2(r.dot(v)*h.mag(), h.mag()**2 - mu*r.mag())
         print("[f] = {:.4f}°".format(np.degrees(f)%360))
 
+        # Case 3: Inclinaion is 0, but f is calculated first
         if i == 0:
             w = None
             print("[\u03C9] is undefined")
@@ -122,6 +176,7 @@ def orbitalElements(mu, r, v):
             print("[\u03C9] = {:.4f}°".format(np.degrees(w)%360))
         
 
+    # Returns
     return a, e, i, o, f, w
 
 if __name__ == "__main__":
