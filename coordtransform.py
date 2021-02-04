@@ -188,6 +188,8 @@ if __name__ == "__main__":
     print("Earth's orbit given r and v at furthest point from the sun")
     print("i = 0")
     print("==========================================================")
+
+    #Calculate standard gravitational parameter
     m_1 = 1
     m_2 = 3.00273e-6
     mu = c.G*(m_1 + m_2)
